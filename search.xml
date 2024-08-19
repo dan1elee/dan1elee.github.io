@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>浅谈我实现的Go序列化工具（1）</title>
+    <url>/2024/08/19/goserialize-intro-1/</url>
+    <content><![CDATA[<p>一个月前，受到软件工程课遇到的问题的启发，准备写一个自己的序列化工具。当时遇到了Python2和Python3之间传输中文字符串编解码方式不同的问题，困扰了很久，直到研究了Python2和3底层字符串的实现和socket的代码才勉强解决了这个问题，但增加了一堆不同编码方式的编解码函数无疑显得不美观。</p>
+<h2 id="goserialize介绍"><a href="#goserialize介绍" class="headerlink" title="goserialize介绍"></a>goserialize介绍</h2><p>goserialize是一个用Go语言实现的，支持Go大部分基础数据类型，支持多编程语言反序列化的序列化工具。</p>
+<p>链接：<a href="https://github.com/dan1elee/goserialize">goserailize的Github仓库</a></p>
+<h2 id="核心方法"><a href="#核心方法" class="headerlink" title="核心方法"></a>核心方法</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Serialize <span class="function"><span class="keyword">func</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span></span>([]<span class="type">byte</span>, <span class="type">error</span>)</span><br><span class="line">Unserialize <span class="function"><span class="keyword">func</span><span class="params">(data []<span class="type">byte</span>, v <span class="keyword">interface</span>&#123;&#125;)</span></span><span class="type">error</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="核心数据结构"><a href="#核心数据结构" class="headerlink" title="核心数据结构"></a>核心数据结构</h2><h3 id="Serialize返回值与Unserialize参数："><a href="#Serialize返回值与Unserialize参数：" class="headerlink" title="Serialize返回值与Unserialize参数："></a>Serialize返回值与Unserialize参数：</h3><p><code>[]byte</code> 字节切片<code>s</code>，满足<code>s[0]</code>为数据的类型，<code>s[1]</code>为数据序列化后的总长度，<code>s[2:]</code>为序列化结果。</p>
+<h2 id="核心逻辑"><a href="#核心逻辑" class="headerlink" title="核心逻辑"></a>核心逻辑</h2><p>使用Go语言中的<code>reflect</code>库读取数据类型与具体值，采用小端序逐字节存储，具体细则会在后续的文章中讲解。</p>
+<h2 id="不足之处"><a href="#不足之处" class="headerlink" title="不足之处"></a>不足之处</h2><ol>
+<li><p>浪费空间，大量前缀0可以省略，部分数据结构可以进行压缩。</p>
+</li>
+<li><p>难以迭代，若进行重构将无法区分序列化结果是哪个版本的输出。</p>
+</li>
+<li><p><code>reflect</code>库实现可能比较耗时。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Golang学习</category>
+      </categories>
+      <tags>
+        <tag>Go</tag>
+        <tag>Golang</tag>
+        <tag>序列化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hello World</title>
     <url>/2024/08/19/hello-world/</url>
     <content><![CDATA[<p>欢迎来到dan1elee的博客</p>

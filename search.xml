@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>浅谈我实现的Go序列化工具（1）</title>
+    <title>6.824(6.5840) Lab1 MapReduce</title>
     <url>/2024/08/26/6.5840-lab-1/</url>
     <content><![CDATA[<p>最近在学习MIT的6.824(6.5840)Distributed Systems，分布式系统。（不得不说，这些顶尖大学的课是确实很不错啊，很有条理让学生很容易跟着走跟着想。）前几天完成了Lab 1 MapReduce，分享一下自己的思路。</p>
 <h2 id="大致实现"><a href="#大致实现" class="headerlink" title="大致实现"></a>大致实现</h2><h3 id="Worker"><a href="#Worker" class="headerlink" title="Worker"></a>Worker</h3><p>先向Coordinator进行注册，得到基本配置，如WorkerId等。</p>
@@ -9,6 +9,12 @@
 <h3 id="Coordinator"><a href="#Coordinator" class="headerlink" title="Coordinator"></a>Coordinator</h3><p>维护任务状态列表和Worker状态列表，设置Ticker定期对还未结束的任务进行调度，同时定期对Worker的HeartBeat状态进行检查，若长时间未收到回复，标记为Lost状态，以便于重新分配Task。</p>
 <h3 id="Worker挂了或者失联了怎么办？"><a href="#Worker挂了或者失联了怎么办？" class="headerlink" title="Worker挂了或者失联了怎么办？"></a>Worker挂了或者失联了怎么办？</h3><p>通过HeartBeat监测Worker状态，若长时间未收到HeartBeat或长时间未收到TaskDone的信号，则重新分配Task，并标记Task的redoTime+1，使用redoTime防止Worker恢复后互相冲突。</p>
 <h2 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h2><p>测试了50次，ALL PASSED。但是就是一次测试需要2min不到，时间有点长，不知道是不是正常情况。</p>
+<h2 id="可以优化的地方"><a href="#可以优化的地方" class="headerlink" title="可以优化的地方"></a>可以优化的地方</h2><ol>
+<li><p>减少网络连接次数，更多的使用长连接</p>
+</li>
+<li><p>优化解决Worker挂了或者失联了的方案，优化Coordinator中维护Worker状态的状态机。</p>
+</li>
+</ol>
 ]]></content>
       <categories>
         <category>Golang学习</category>
@@ -17,7 +23,7 @@
         <tag>Go</tag>
         <tag>Golang</tag>
         <tag>分布式系统</tag>
-        <tag>6.584</tag>
+        <tag>6.5840</tag>
         <tag>6.824</tag>
       </tags>
   </entry>

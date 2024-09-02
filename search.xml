@@ -30,6 +30,26 @@
       </tags>
   </entry>
   <entry>
+    <title>6.824(6.5840) 2024 Lab2 Key-Value Server</title>
+    <url>/2024/09/02/6.5840-lab-2/</url>
+    <content><![CDATA[<p>最近在学习MIT的6.824(6.5840)Distributed Systems，分布式系统。（不得不说，这些顶尖大学的课是确实很不错啊，很有条理让学生很容易跟着走跟着想。）前几天完成了Lab 2 KeyValue数据库，分享一下自己的思路。</p>
+<h2 id="大致实现"><a href="#大致实现" class="headerlink" title="大致实现"></a>大致实现</h2><p>使用map记录K-V对，使用map记录之前已经回复过的信息</p>
+<h3 id="出现的问题"><a href="#出现的问题" class="headerlink" title="出现的问题"></a>出现的问题</h3><p>一开始考虑随机数可能出现重复，所以又拿了map来存储之前用到的随机数，结果测试就显示Server内存过大了。</p>
+<p>但当时认为排除重复还是有必要的，所以把K-V对用链表存了，结果不只内存过大，时间也超时了。</p>
+]]></content>
+      <categories>
+        <category>Golang学习</category>
+        <category>分布式系统学习</category>
+      </categories>
+      <tags>
+        <tag>Go</tag>
+        <tag>Golang</tag>
+        <tag>分布式系统</tag>
+        <tag>6.5840</tag>
+        <tag>6.824</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>浅谈我实现的Go序列化工具（1）</title>
     <url>/2024/08/19/goserialize-intro-1/</url>
     <content><![CDATA[<p>一个月前，受到软件工程课遇到的问题的启发，准备写一个自己的序列化工具。当时遇到了Python2和Python3之间传输中文字符串编解码方式不同的问题，困扰了很久，直到研究了Python2和3底层字符串的实现和socket的代码才勉强解决了这个问题，但增加了一堆不同编码方式的编解码函数无疑显得不美观。</p>

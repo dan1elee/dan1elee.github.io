@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>6.824(6.5840) Lab1 MapReduce</title>
+    <url>/2025/01/17/6.5840-lab-1/</url>
+    <content><![CDATA[<p>最近在学习MIT的6.824(6.5840)Distributed Systems，分布式系统。前几天完成了Lab 1 MapReduce，分享一下自己的思路。</p>
+<h2 id="大致实现"><a href="#大致实现" class="headerlink" title="大致实现"></a>大致实现</h2><h3 id="Worker"><a href="#Worker" class="headerlink" title="Worker"></a>Worker</h3><p>先向Coordinator进行注册，得到基本配置，如WorkerId等。</p>
+<p>然后定期向Coordinator发送HeartBeat信号以表示其状态，Coordinator会记录注册的Worker的状态，若Worker未被分配任务，且HeartBeat正常，会在HeartBeat的回复中得到待处理的Task。</p>
+<h3 id="Coordinator"><a href="#Coordinator" class="headerlink" title="Coordinator"></a>Coordinator</h3><p>维护任务状态列表和Worker状态列表，设置Ticker定期对还未结束的任务进行调度，同时定期对Worker的HeartBeat状态进行检查，若长时间未收到回复，标记为Lost状态，以便于重新分配Task。</p>
+<h3 id="Worker挂了或者失联了怎么办？"><a href="#Worker挂了或者失联了怎么办？" class="headerlink" title="Worker挂了或者失联了怎么办？"></a>Worker挂了或者失联了怎么办？</h3><p>通过HeartBeat监测Worker状态，若长时间未收到HeartBeat或长时间未收到TaskDone的信号，则重新分配Task，并标记Task的redoTime+1，使用redoTime防止Worker恢复后互相冲突。</p>
+<h2 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h2><p>测试了50次，ALL PASSED。但是就是一次测试需要2min不到，时间有点长，不知道是不是正常情况。</p>
+<h2 id="可以优化的地方"><a href="#可以优化的地方" class="headerlink" title="可以优化的地方"></a>可以优化的地方</h2><ol>
+<li><p>减少网络连接次数，更多的使用长连接</p>
+</li>
+<li><p>优化解决Worker挂了或者失联了的方案，优化Coordinator中维护Worker状态的状态机。</p>
+</li>
+</ol>
+<h2 id="2024-9-2-更新"><a href="#2024-9-2-更新" class="headerlink" title="2024.9.2 更新"></a>2024.9.2 更新</h2><p>优化了RPC的的发送频率，测试时间从2min降低到了89s左右。</p>
+]]></content>
+      <categories>
+        <category>Golang学习</category>
+        <category>分布式系统学习</category>
+      </categories>
+      <tags>
+        <tag>Go</tag>
+        <tag>Golang</tag>
+        <tag>分布式系统</tag>
+        <tag>6.5840</tag>
+        <tag>6.824</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>6.824(6.5840) 2024 Lab2 Key-Value Server</title>
+    <url>/2025/01/17/6.5840-lab-2/</url>
+    <content><![CDATA[<p>最近在学习MIT的6.824(6.5840)Distributed Systems，分布式系统。前几天完成了Lab 2 KeyValue数据库，分享一下自己的思路。</p>
+<h2 id="大致实现"><a href="#大致实现" class="headerlink" title="大致实现"></a>大致实现</h2><p>使用map记录K-V对，使用map记录之前已经回复过的信息</p>
+<h3 id="出现的问题"><a href="#出现的问题" class="headerlink" title="出现的问题"></a>出现的问题</h3><p>一开始考虑随机数可能出现重复，所以又拿了map来存储之前用到的随机数，结果测试就显示Server内存过大了。</p>
+<p>但当时认为排除重复还是有必要的，所以把K-V对用链表存了，结果不只内存过大，时间也超时了。</p>
+]]></content>
+      <categories>
+        <category>Golang学习</category>
+        <category>分布式系统学习</category>
+      </categories>
+      <tags>
+        <tag>Go</tag>
+        <tag>Golang</tag>
+        <tag>分布式系统</tag>
+        <tag>6.5840</tag>
+        <tag>6.824</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浅谈我实现的Go序列化工具（1）</title>
+    <url>/2024/12/08/goserialize-intro-1/</url>
+    <content><![CDATA[<p>一个月前，受到软件工程课遇到的问题的启发，准备写一个自己的序列化工具。当时遇到了Python2和Python3之间传输中文字符串编解码方式不同的问题，困扰了很久，直到研究了Python2和3底层字符串的实现和socket的代码才勉强解决了这个问题，但增加了一堆不同编码方式的编解码函数无疑显得不美观。</p>
+<h2 id="goserialize介绍"><a href="#goserialize介绍" class="headerlink" title="goserialize介绍"></a>goserialize介绍</h2><p>goserialize是一个用Go语言实现的，支持Go大部分基础数据类型，支持多编程语言反序列化的序列化工具。</p>
+<p>链接：<a href="https://github.com/dan1elee/goserialize">goserailize的Github仓库</a></p>
+<h2 id="核心方法"><a href="#核心方法" class="headerlink" title="核心方法"></a>核心方法</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Serialize <span class="function"><span class="keyword">func</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span></span>([]<span class="type">byte</span>, <span class="type">error</span>)</span><br><span class="line">Unserialize <span class="function"><span class="keyword">func</span><span class="params">(data []<span class="type">byte</span>, v <span class="keyword">interface</span>&#123;&#125;)</span></span><span class="type">error</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="核心数据结构"><a href="#核心数据结构" class="headerlink" title="核心数据结构"></a>核心数据结构</h2><h3 id="Serialize返回值与Unserialize参数："><a href="#Serialize返回值与Unserialize参数：" class="headerlink" title="Serialize返回值与Unserialize参数："></a>Serialize返回值与Unserialize参数：</h3><p><code>[]byte</code> 字节切片<code>s</code>，满足<code>s[0]</code>为数据的类型，<code>s[1]</code>为数据序列化后的总长度，<code>s[2:]</code>为序列化结果。</p>
+<h2 id="核心逻辑"><a href="#核心逻辑" class="headerlink" title="核心逻辑"></a>核心逻辑</h2><p>使用Go语言中的<code>reflect</code>库读取数据类型与具体值，采用小端序逐字节存储，具体细则会在后续的文章中讲解。</p>
+<h2 id="不足之处"><a href="#不足之处" class="headerlink" title="不足之处"></a>不足之处</h2><ol>
+<li><p>浪费空间，大量前缀0可以省略，部分数据结构可以进行压缩。</p>
+</li>
+<li><p>难以迭代，若进行重构将无法区分序列化结果是哪个版本的输出。</p>
+</li>
+<li><p><code>reflect</code>库实现可能比较耗时。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Golang学习</category>
+      </categories>
+      <tags>
+        <tag>Go</tag>
+        <tag>Golang</tag>
+        <tag>序列化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2024/12/08/hello-world/</url>
+    <content><![CDATA[<p>欢迎来到dan1elee的博客</p>
+]]></content>
+      <tags>
+        <tag>初始化</tag>
+      </tags>
+  </entry>
+</search>
